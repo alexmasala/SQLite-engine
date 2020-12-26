@@ -6,7 +6,6 @@ using namespace std;
 int main()
 {
 	//TO-DO
-
 	ColumnLayout column;
 
 	cout << column;
