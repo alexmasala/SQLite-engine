@@ -6,10 +6,10 @@ using namespace std;
 class ColumnLayout
 {
 	const int nrInregistrare;
-	char* nume_coloana;
-	char* tip_coloana;
-	int* dimensiune_coloana;
-	char* valoare_implicita;
+	char* nume_coloana = NULL;
+	char* tip_coloana = NULL;
+	int* dimensiune_coloana = NULL;
+	char* valoare_implicita = NULL;
 	int is_nullable;
 	int nrColoane;
 	static string descriere_coloana;
@@ -18,7 +18,7 @@ class ColumnLayout
 	//	int coloana_filtru; /*  id cu valoare - ex: pt SELECT(nume) FROM studenti WHERE id = 1 */
 
 public:
-	int getIdnrInregistrare() //id e const -> fara set()
+	int getNrInregistrare() //nrInreg e const -> fara set()
 	{
 		return this->nrInregistrare;
 	}
@@ -30,6 +30,7 @@ public:
 
 	void setNumeColoana(const char* nouNume_coloana)
 	{
+
 		if (this->nume_coloana != nullptr) {
 			delete[] this->nume_coloana;
 		}
@@ -42,7 +43,7 @@ public:
 		return this->tip_coloana;
 	}
 
-	void setTipColoana(const char* nouTip_coloana)
+	void setTipColoana(const char* nouTip_coloana) //error
 	{
 		if (this->tip_coloana != nullptr) {
 			delete[] this->tip_coloana;
@@ -97,6 +98,16 @@ public:
 			this->is_nullable = 1;
 	}
 
+	int getNrColoane()
+	{
+		return this->nrColoane;
+	}
+
+	void setNrColoane(int nrColoane)
+	{
+			this->nrColoane = nrColoane;
+	}
+
 	static string getDescriereColoana()
 	{
 		return descriere_coloana;
@@ -109,23 +120,75 @@ public:
 
 	ColumnLayout():nrInregistrare(1) {
 		this->setNumeColoana("");
-		this->setTipColoana("");;
+		this->setTipColoana("");
 		this->setDimensiuneColoana(NULL,0);
 		this->setValoareImplicita("");
 		this->setIsNullable(0);
-		this->setDescriereColoana("");;
+		this->setDescriereColoana("");
 	}
 
-	ColumnLayout(int nrInregistrare, char* nume_coloana, char* tip_coloana,int* dimensiune_coloana, int nrColoane, char* valoare_implicita) :nrInregistrare(nrInregistrare) {
+	ColumnLayout(int nrInregistrare,const char* nume_coloana, char* tip_coloana,int* dimensiune_coloana, int nrColoane, char* valoare_implicita) :nrInregistrare(nrInregistrare) {
 		this->setNumeColoana(nume_coloana);
+		this->setNrColoane(nrColoane);
 		this->setTipColoana(tip_coloana);
 		this->setDimensiuneColoana(dimensiune_coloana, nrColoane);
 		this->setValoareImplicita(valoare_implicita);
-		/*this->setIsNullable(0);
-		this->setDescriereColoana("");;*/
+		this->setIsNullable(0);
+		this->setDescriereColoana("");
 	}
 
+	ColumnLayout(const ColumnLayout& c) :nrInregistrare(c.nrInregistrare) {
+		this->setNumeColoana(c.nume_coloana);
+		this->setNrColoane(c.nrColoane);
+		this->setTipColoana(c.tip_coloana);
+		this->setDimensiuneColoana(c.dimensiune_coloana, c.nrColoane);
+		this->setValoareImplicita(c.valoare_implicita);
+	}
+
+	~ColumnLayout()
+	{
+		if (nume_coloana != nullptr)
+		{
+			delete[] nume_coloana;
+		}
+
+		if (tip_coloana != nullptr)
+		{
+			delete[] tip_coloana;
+		}
+
+		if (dimensiune_coloana != nullptr)
+		{
+			delete[] dimensiune_coloana;
+		}
+
+		if (valoare_implicita != nullptr)
+		{
+			delete[] valoare_implicita;
+		}
+	}
+
+	friend ostream& operator<<(ostream&, ColumnLayout);
 };
+
+string ColumnLayout::descriere_coloana = "In a relational database, a column is a set of data values of a particular simple type, one value for each row of the database.";
+
+ostream& operator<<(ostream& out, ColumnLayout c)
+{
+	cout << "Nr inregistrare: ";
+	out << c.getNrInregistrare() << endl;
+	cout << "Nr. coloane: ";
+	out << c.getNrColoane() << endl;
+	cout << "Dimensiuni per coloana: ";
+	if (c.getNumeColoana() != nullptr)
+	{
+		for (int i = 0; i < c.getNrColoane(); i++)
+		{
+			out << c.getNumeColoana()[i] << " ";
+		}
+	}
+	return out;
+}
 
 class Table
 {
@@ -135,6 +198,8 @@ class Table
 	ColumnLayout* columns;
 	static string descriere_tabela;
 };
+
+string Table::descriere_tabela = "Tables are database objects that contain all the data in a database. In tables, data is logically organized in a row-and-column format similar to a spreadsheet.";
 
 class Database
 {
