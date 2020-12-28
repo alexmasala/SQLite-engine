@@ -86,6 +86,26 @@ int main()
 	cout << table2[1];
 	
 	bool greater = table4 > table1;
-	cout << "operator >: " << greater;
-	
+	cout << "operator >: " << greater << endl;
+
+	cout << " ---------------------------------------------------------------------- ";
+	cout << endl << endl;
+
+	Table* tablesArray = new Table[2]{ table2, table6 };
+	Database db1(200, "DB1", 2, tablesArray);
+	//Database db2(db1);
+	//db2 = db1;
+	Database db2;
+	/*cin >> db2;
+	cout << db2;*/
+	db2.setNumeDB("DBTest2");
+	db2.setTables(tablesArray, 2);
+	/*cout << db2.getNumeDB() << " ";
+	cout << db2.getTable(0) << " ";
+	cout << db2.getTable(1) << " ";*/
+	cout << "op !: " << !db2 << endl;
+	bool same3 = db1 == db2;
+	cout << "op ==: " << same3 << endl;
+	cout << "op cast: " << (int)db2 << endl;
+
 }

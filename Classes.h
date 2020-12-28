@@ -491,7 +491,6 @@ public:
 			this->nrColoane = 0;
 			this->columns = nullptr;
 		}
-
 	}
 	Column* getColumns()
 	{
@@ -523,7 +522,6 @@ public:
 			Table::nrMaximColoane = 20;
 		}
 	}
-
 	//supraincarcari
 	explicit operator int()
 	{
@@ -634,17 +632,239 @@ istream& operator>>(istream& in, Table& t)
 	return in;
 }
 
-
 class Database
 {
-	const int capacitate_DB;
+	const int capacitateDB;
 	Table* tables;
-	char* DB_nume;
-	static string descriere_DB;
+	int nrTabele;
+	char* numeDB;
+	static char descriereDB[200];
+
+public:
+	Database() :capacitateDB(0)
+	{
+		this->tables = nullptr;
+		this->nrTabele = 0;
+		this->numeDB = nullptr;
+	}
+	Database(int cap, const char* n, int nr, Table* t) :capacitateDB(cap)
+	{
+		this->numeDB = new char[strlen(n) + 1];
+		strcpy_s(this->numeDB, strlen(n) + 1, n);
+		if (nr > 0)
+		{
+			this->nrTabele = nr;
+		}
+		this->tables = new Table[nr];
+		for (int i = 0; i < nr; i++)
+		{
+			this->tables[i] = t[i];
+		}
+	}
+	Database(int c, const char* n) :capacitateDB(0)
+	{
+		this->numeDB = new char[strlen(n) + 1];
+		strcpy_s(this->numeDB, strlen(n) + 1, n);
+		this->nrTabele = 0;
+		this->numeDB = nullptr;
+	}
+	Database(const Database& db) :capacitateDB(db.capacitateDB)
+	{
+		if (db.numeDB != nullptr)
+		{
+			this->numeDB = new char[strlen(db.numeDB) + 1];
+			strcpy_s(this->numeDB, strlen(db.numeDB) + 1, db.numeDB);
+		}
+		else
+		{
+			this->numeDB = nullptr;
+		}
+		if (db.tables != nullptr && db.nrTabele != 0)
+		{
+			this->nrTabele = db.nrTabele;
+			this->tables = new Table[nrTabele];
+			for (int i = 0; i < nrTabele; i++)
+			{
+				this->tables[i] = db.tables[i];
+			}
+		}
+		else
+		{
+			this->tables = nullptr;
+			this->nrTabele = 0;
+		}
+	}
+	Database& operator=(const Database& db)
+	{
+		if (this->numeDB != nullptr)
+		{
+			delete[] this->numeDB;
+		}
+		if (this->tables != nullptr)
+		{
+			delete[] this->tables;
+		}
+		if (db.numeDB != nullptr)
+		{
+			this->numeDB = new char[strlen(db.numeDB) + 1];
+			strcpy_s(this->numeDB, strlen(db.numeDB) + 1, db.numeDB);
+		}
+		else
+		{
+			this->numeDB = nullptr;
+		}
+		if (db.tables != nullptr && db.nrTabele != 0)
+		{
+			this->nrTabele = db.nrTabele;
+			this->tables = new Table[nrTabele];
+			for (int i = 0; i < nrTabele; i++)
+			{
+				this->tables[i] = db.tables[i];
+			}
+		}
+		else
+		{
+			this->tables = nullptr;
+			this->nrTabele = 0;
+		}
+		return *this;
+	}
+	~Database()
+	{
+		if (this->numeDB != nullptr)
+		{
+			delete[] this->numeDB;
+		}
+		if (this->tables != nullptr)
+		{
+			delete[] this->tables;
+		}
+	}
+	string getDescriereDB()
+	{
+		string aux = Database::descriereDB;
+		return aux;
+	}
+	int getCapacitateDB() //const => doar get
+	{
+		return this->capacitateDB;
+	}
+	const char* getNumeDB()
+	{
+		if (this->numeDB != nullptr)
+		{
+			char* copieNumeDB = new char[strlen(this->numeDB) + 1];
+			strcpy_s(copieNumeDB, strlen(this->numeDB) + 1, this->numeDB);
+			return copieNumeDB;
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+	int getNrTabele()
+	{
+		return this->nrTabele;
+	}
+	Table* getTables()
+	{
+		return this->tables;
+	}
+	Table getTable(int poz)
+	{
+		if (poz >= 0 && poz < this->nrTabele)
+		{
+			return this->tables[poz];
+		}
+	}
+	void setTables(Table* tb, int nr)
+	{
+		if (tb != nullptr && nr != 0)
+		{
+			this->nrTabele = nr;
+			if (this->tables != nullptr)
+			{
+				delete[] this->tables;
+			}
+			this->tables = new Table[nr];
+			for (int i = 0; i < nr; i++)
+			{
+				this->tables[i] = tb[i];
+			}
+		}
+		else
+		{
+			this->nrTabele = 0;
+			this->tables = nullptr;
+		}
+	}
+	void setNumeDB(const char* numeDB)
+	{
+		if (this->numeDB != nullptr)
+		{
+			delete[] this->numeDB;
+		}
+		this->numeDB = new char[strlen(numeDB) + 1];
+		strcpy_s(this->numeDB, strlen(numeDB) + 1, numeDB);
+	}
+	Table operator[](int index)
+	{
+		if (index >= 0 && index < this->nrTabele)
+		{
+			return this->tables[index];
+		}
+	}
+	explicit operator int()
+	{
+		return this->nrTabele;
+	}
+	bool operator!()
+	{
+		return tables == nullptr;
+	}
+	bool operator==(Database& db)
+	{
+		if (strcmp(this->numeDB, db.numeDB) == 0)
+			return true;
+		else
+			return false;
+	}
+	friend ostream& operator<<(ostream&, Database);
+	friend istream& operator>>(istream&, Database&);
 };
 
-string Database::descriere_DB = "A database is an organized collection of structured information, or data, typically stored electronically in a computer system.";
+char Database::descriereDB[200] = "A database is an organized collection of structured information, or data, typically stored electronically in a computer system.";
 
+
+ostream& operator<<(ostream& o, Database d)
+{
+	cout << "Nume baza de date: ";
+	if (d.numeDB != nullptr)
+	{
+		o << d.numeDB << endl;
+	}
+	else
+	{
+		o << "No name!" << endl;
+	}
+	cout << "Nr tabele: ";
+	o << d.nrTabele << endl;
+	return o;
+}
+
+istream& operator>>(istream& in, Database& db)
+{
+	cout << "Numele tabelei: ";
+	char buffer[100];
+	in.getline(buffer, 101);
+	if (db.numeDB != nullptr)
+	{
+		delete[] db.numeDB;
+	}
+	db.numeDB = new char[strlen(buffer) + 1];
+	strcpy_s(db.numeDB, strlen(buffer) + 1, buffer);
+	return in;
+}
 
 class Commands {
 	static string descriere_comenzi;
