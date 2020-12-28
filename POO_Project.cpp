@@ -6,58 +6,86 @@ using namespace std;
 int main()
 {
 	//TO-DO
-	ColumnLayout column;
 
-	//cout << column;
-	//ColumnLayout column;
-	int* c1 = new int[3]{ 1,2,3 };
-	ColumnLayout cl1(2, "nume", "text", c1, 3, "necunoscut");
-	int* c2 = new int[2]{ 3,2 };
-	ColumnLayout cl2(3, "varsta", "number", c2, 2, "0");
+	//-----------COLUMN-------------
+	//ctors
+	Column c1;
+	Column c2("nume","text",200,"anonim");
+	Column c3("oras","text",100,"unknown",false);
+	////ctor de copiere
+	Column c4(c3);
+	//op egal
+	Column c5;
+	c5 = c4;
+	cout << c5 << endl;
+	//citire si afisare la consola
+	Column c6;
+	//cin >> c6;
+	//cout << c6;
+	//verificare getteri si setteri
+	c6.setDenumire("nume");
+	c6.setDimensiune(22);
+	c6.setTip("Text");
+	c6.setValoareImplicita("Maria");
+	c6.setNullable(true);
+	cout << c6.getIdColoana() << " " << c6.getDenumire() << " " << c6.getDimensiune() << " " << c6.getTip() << " " << c6.getValoareImplicita() << " " << c6.getNullable() << endl;
+	//verificare operatori
+	cout << "operator !: " << !c5 << endl;
+	bool test = c3 < c2;
+	cout << test << endl;
+	bool same = c3 == c2;
+	cout << same << endl;
+	string type = (string)c3;
+	cout << type <<endl;
 
-	cout << !cl1 << endl;
-	bool x = cl1 < cl2;
-	cout << x << endl;
-	bool s = cl1 == cl2;
-	cout << s << endl;
-	int nr = (int)cl1;
-	cout << nr << endl;
-	ColumnLayout coloana = ++column;
-	cout << coloana.getNrColoane() <<endl;
+	cout << c5.getDimensiune() << endl;
+	cout << c6 << endl;
+	c6 = ++c5;
+	cout << c6 << endl;
+	c6 = c6 + 5;
+	cout << c6 << endl;
 
-	ColumnLayout cl4;
-	cin >> cl4;
-	cout << cl4;
-	cout << column;
+	//-----tabela-------
+	Column cl1("nume", "text", 200, "necunoscut");
+	Column cl2("varsta", "number", 100, "0");
+	Column* columnsArray = new Column[2]{ cl1,cl2 };
+	//verif constructori
+	Table table1;
+	Table table2("Studenti", 2, columnsArray);
+	Table table3("Animale");
+	cout << "nr tabele: " << table1.getNrTabele() << endl;
+	//constr de copiere
+	Table table4(table2);
+	//op egal
+	Table table5;
+	table5 = table2;
+	//afisiare si citire de la consola
+	Table table6;
+	//cin >> table6;
+	//cout << table6;
 
-	ColumnLayout* obs= new ColumnLayout[2]{cl1,cl2};
-	cout << obs[0]<<endl;
-	cout << obs[1]<<endl;
+	//getteri si setteri
+	table6.setNumeTabela("Elevi");
+	table6.setColumns(columnsArray, 2);
+	cout << " ---------------------------------------------------------- ";
+	cout << table6.getIdTabela() << " " << table6.getNrColoane() << " " << table6.getColumn(0) << table6.getColumn(1);
 
-	Table test("nume",11,obs);
-	cout << test; 
-	Table test1;
-	cin >> test1;
+	//operatori
+	cout << "op !: " << !table4 << endl;
+	bool same2 = table2 == table3;
+	cout << "op ==: " << same2 <<endl;
+	cout << "op cast: " << (int)table2 << endl; 
 
-	for (int i = 0; i < 2; i++)
-		test.getColumnLayout()[i].getNumeColoana();
-
-	Table t;
-	t.setNumeTabela("Studenti");
-	t.setCapacitateTabela(15);
-	string str = (string)t;
-	cout << str << endl;
-	if (!t)
-	cout << "Tabela " << t.getNumeTabela() << " nu are coloane!" << endl;
+	Column cl3("Descriere", "text", 300, "not completed");
+	Table table8;
 	
-	Table t1;
-	t1.setNumeTabela("Medicamente");
-	t1.setCapacitateTabela(20);
-	if (t1 > t)
-		cout  << "Tabela " << t1.getNumeTabela() << " are o capacitate mai mare decat tabela " << t.getNumeTabela()<<endl;
+	cout << "table 2: " << endl;
+	cout << table2.operator+(cl3);
+
+	cout << "operator []: " << endl;
+	cout << table2[1];
 	
-	Table t2;
-	t1.setNumeTabela("Studenti");
-	if (t == t2)
-		cout << "Tabelele au acelasi nume!" <<endl;
+	bool greater = table4 > table1;
+	cout << "operator >: " << greater;
+	
 }
