@@ -64,7 +64,7 @@ public:
 		strcpy_s(this->valoareImplicita, strlen(valImplicita) + 1, valImplicita);
 		this->isNullable = false;
 	}
-	Column(const Column& c) :idColoana(++nrColoane)
+	Column(const Column& c) :idColoana(c.idColoana)
 	{
 		if (c.denumire != nullptr)
 		{
@@ -863,6 +863,362 @@ istream& operator>>(istream& in, Database& db)
 	}
 	db.numeDB = new char[strlen(buffer) + 1];
 	strcpy_s(db.numeDB, strlen(buffer) + 1, buffer);
+	return in;
+}
+
+class Field
+{
+	string typeOfData;
+	char* value;
+	static char descriptionOfFields[200];
+	bool isNull;
+	
+public:
+	Field()
+	{
+		this->typeOfData = "";
+		this->value = nullptr;
+		this->isNull = 1;
+	}
+	Field(const char* value, string tod)
+	{
+		this->value = new char[strlen(value) + 1];
+		strcpy_s(this->value, strlen(value) + 1, value);
+		if (tod.length() > 0)
+		{
+			this->typeOfData = tod;
+		}
+		else
+			this->typeOfData = "";
+		if (this->value != nullptr)
+		{
+			this->isNull = 0;
+		}
+	}
+	Field(const char* value)
+	{
+		this->value = new char[strlen(value) + 1];
+		strcpy_s(this->value, strlen(value) + 1, value);
+		this->typeOfData = "";
+		if (this->value != nullptr)
+		{
+			this->isNull = 0;
+		}
+	}
+	Field(const Field& f)
+	{
+		if (f.value != nullptr)
+		{
+			this->value = new char[strlen(f.value) + 1];
+			strcpy_s(this->value, strlen(f.value) + 1, f.value);
+		}
+		else
+		{
+			this->value = nullptr;
+		}
+		this->isNull = f.isNull;
+		this->typeOfData = f.typeOfData;
+	}
+	Field& operator=(const Field& f)
+	{
+		delete[] this->value;
+		if (f.value != nullptr)
+		{
+			this->value = new char[strlen(f.value) + 1];
+			strcpy_s(this->value, strlen(f.value) + 1, f.value);
+		}
+		else
+		{
+			this->value = nullptr;
+		}
+		this->isNull = f.isNull;
+		this->typeOfData = f.typeOfData;
+		return *this;
+	}
+	~Field()
+	{
+		if (this->value != nullptr)
+		{
+			delete[] this->value;
+		}
+	}
+	string getFieldType()
+	{
+		return this->typeOfData;
+	}
+	bool getIsNull()
+	{
+		return this->isNull;
+	}
+	const char* getValue()
+	{
+		if (this->value != nullptr)
+		{
+			char* copieValue = new char[strlen(this->value) + 1];
+			strcpy_s(copieValue, strlen(this->value) + 1, this->value);
+			return copieValue;
+		}
+		else
+		{
+			return nullptr;
+		}
+	}
+	void setFieldType(string t)
+	{
+		this->typeOfData = t;
+	}
+	void setIsNull(bool nl)
+	{
+		this->isNull = nl;
+	}
+	void setValue(const char* val)
+	{
+		if (this->value != nullptr)
+		{
+			delete[] this->value;
+		}
+		this->value = new char[strlen(val) + 1];
+		strcpy_s(this->value, strlen(val) + 1, val);
+	}
+	static string getDescriptionOfFields()
+	{
+		string aux = descriptionOfFields;
+		return aux;
+	}
+	//operatori
+	explicit operator int()
+	{
+		return strlen(this->value);
+	}
+	bool operator==(Field f)
+	{
+		return this->value == f.value;
+	}
+	bool operator<(Field f)
+	{
+		if (strlen(this->value) < strlen(f.value))
+		{
+			return true;
+		}
+	}
+	friend ostream& operator<<(ostream&, Field);
+	friend istream& operator>>(istream&, Field&);
+};
+
+char Field::descriptionOfFields[200] = "A database field is a single piece of information from a record.";
+
+ostream& operator<<(ostream& o, Field f)
+{
+	cout << "Value: ";
+	if (f.value != nullptr)
+	{
+		o << f.value << endl;
+	}
+	else
+	{
+		o << "null" << endl;
+	}
+	cout << "Type of data: ";
+	o << f.typeOfData << endl;
+	cout << "is null? 0-nu, 1-da" << endl;
+	o << f.isNull <<endl;
+	return o;
+}
+
+istream& operator>>(istream& in, Field& f)
+{
+	cout << "Value: ";
+	char buffer[100];
+	in >> ws;
+	in.getline(buffer, 101);
+	if (f.value != nullptr)
+	{
+		delete[] f.value;
+	}
+	f.value = new char[strlen(buffer) + 1];
+	strcpy_s(f.value, strlen(buffer) + 1, buffer);
+	cout << "Type: ";
+	in >> ws;
+	in.getline(buffer, 101);
+	f.typeOfData = buffer;
+	if (f.value != nullptr)
+	{
+		f.isNull = 0;
+	}
+	return in;
+}
+
+class Row
+{
+	const int idRow;
+	int noOfFields;
+	Field* fields;
+	static char descriptionOfRows[200];
+	static int noOfRows;
+
+public:
+	Row():idRow(++noOfRows)
+	{
+		this->noOfFields = 0;
+		this->fields = nullptr;
+	}
+	Row(int no, Field* fields):idRow(++noOfRows)
+	{
+		if (fields != nullptr && no != 0)
+		{
+			this->noOfFields = no;
+			this->fields = new Field[no];
+			for (int i = 0; i < no; i++)
+			{
+				this->fields[i] = fields[i];
+			}
+		}
+		else
+		{
+			this->noOfFields = 0;
+			this->fields = nullptr;
+		}
+	}
+	Row(const Row& r):idRow(r.idRow)
+	{
+		if (r.fields != nullptr && r.noOfFields != 0)
+		{
+			this->noOfFields = r.noOfFields;
+			this->fields = new Field[r.noOfFields];
+			for (int i = 0; i < r.noOfFields; i++)
+			{
+				this->fields[i] = r.fields[i];
+			}
+
+		}
+		else
+		{
+			this->fields = nullptr;
+			this->noOfFields = 0;
+		}
+	}
+	Row& operator=(const Row& r)
+	{
+		if (this->fields != nullptr)
+		{
+			delete[] this->fields;
+		}
+		if (r.fields != nullptr && r.noOfFields != 0)
+		{
+			this->noOfFields = r.noOfFields;
+			this->fields = new Field[r.noOfFields];
+			for (int i = 0; i < r.noOfFields; i++)
+			{
+				this->fields[i] = r.fields[i];
+			}
+
+		}
+		else
+		{
+			this->fields = nullptr;
+			this->noOfFields = 0;
+		}
+		return *this;
+	}
+	int getIdRow()
+	{
+		return this->idRow;
+	}
+	int getNoOfFields()
+	{
+		return this->noOfFields;
+	}
+	Field getField(int i)
+	{
+		return this->fields[i];
+	}
+	void setFields(Field* f, int nr)
+	{
+		if (f!= nullptr && nr != 0)
+		{
+			this->noOfFields = nr;
+			if (this->fields != nullptr)
+			{
+				delete[] this->fields;
+			}
+			this->fields = new Field[nr];
+			for (int i = 0; i < nr; i++)
+			{
+				this->fields[i] = f[i];
+			}
+		}
+		else
+		{
+			this->noOfFields = 0;
+			this->fields = nullptr;
+		}
+	}
+	~Row()
+	{
+		if (this->fields != nullptr)
+		{
+			delete[] this->fields;
+		}
+	}
+	//operators
+	bool operator==(Row r)
+	{
+		if (this->noOfFields == r.noOfFields)
+		{
+			return true;
+		}
+	}
+	bool operator>(Row r)
+	{
+		if (this->noOfFields > r.noOfFields)
+		{
+			return true;
+		}
+	}
+	string operator[](int poz)
+	{
+		if (poz >= 0 && poz < this->noOfFields)
+		{
+			return this->fields[poz].getValue();
+		}
+	}
+	explicit operator int() {
+		return this->noOfFields;
+	}
+	friend ostream& operator<<(ostream&, Row);
+	friend istream& operator>>(istream&, Row&);
+};
+
+char Row::descriptionOfRows[200] = "A database record is collection of fields about the same person, item, or object in a database";
+int Row::noOfRows = 0;
+
+ostream& operator<<(ostream& o, Row r)
+{
+	cout << "Row ";
+	o << r.idRow << " ";
+	cout << "Values: ";
+	for (int i = 0; i < r.noOfFields; i++)
+	{
+		o << r.fields[i].getValue() << " ";
+	}
+	return o;
+}
+
+istream& operator>>(istream& in, Row& r)
+{
+	cout << "Introduceti valorile: ";
+	if (r.fields)
+	{
+		delete[] r.fields;
+	}
+	cout << "Nr valori: ";
+	in >> r.noOfFields;
+	r.fields = new Field[r.noOfFields];
+	for (int i = 0; i < r.noOfFields; i++)
+	{
+		cout << "Valoare " << i + 1 << endl;
+		in >> r.fields[i];
+	}
 	return in;
 }
 
