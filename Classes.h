@@ -447,16 +447,7 @@ public:
 	}
 	const char* getNumeTabela()
 	{
-		if (this->nume != nullptr)
-		{
-			char* copieNume = new char[strlen(this->nume) + 1];
-			strcpy_s(this->nume, strlen(this->nume) + 1, copieNume);
-			return copieNume;
-		}
-		else
-		{
-			return nullptr;
-		}
+			return this->nume;
 	}
 	void setNumeTabela(const char* n)
 	{
@@ -467,6 +458,13 @@ public:
 		this->nume = new char[strlen(n) + 1];
 		strcpy_s(this->nume, strlen(n) + 1, n);
 	}
+
+	void setNumeTabela_Comenzi(const char* n)
+	{
+		this->nume = new char[strlen(n) + 1];
+		strcpy_s(this->nume, strlen(n) + 1, n);
+	}
+
 	int getNrColoane()
 	{
 		return this->nrColoane;
@@ -1227,6 +1225,72 @@ class Commands {
 };
 
 string Commands::descriere_comenzi = "SQL commands can be used to search the database and to do other functions like creating tables, adding data to tables, modifying data, and dropping tables.";
+
+void create_tabela(const char* nume_tabela, Table* tabels, Column* c/*const char* nume_coloana, string tip_coloana, int dimensiune_coloana, const char* valImplicita*/)
+{
+	tabels->setNumeTabela(nume_tabela);
+	tabels->getColumns()->setDenumire(c->getDenumire());
+	tabels->getColumns()->setTip(c->getTip());
+	tabels->getColumns()->setDimensiune(c->getDimensiune());
+	tabels->getColumns()->setValoareImplicita(c->getValoareImplicita());
+}
+
+class Create_Command
+{
+private:
+	Table* t;
+public:
+	Create_Command() {
+		this->t = nullptr;
+	}
+
+	Create_Command(Table* t) {
+		this->t = t;
+	}
+
+	Create_Command(const Create_Command& cc)
+	{
+		this->t = cc.t;
+	}
+
+	void setTable_Create(Table* t)
+	{
+		this->t = t;
+	}
+
+	Table* getTable_Create()
+	{
+		return this->t;
+	}
+
+	void create_tabela(Table* tabels)
+	{
+		this->t->setNumeTabela_Comenzi(tabels->getNumeTabela());
+		this->t->getColumns()->setDenumire(tabels->getColumns()->getDenumire());
+		this->t->getColumns()->setTip(tabels->getColumns()->getTip());
+		this->t->getColumns()->setDimensiune(tabels->getColumns()->getDimensiune());
+		this->t->getColumns()->setValoareImplicita(tabels->getColumns()->getValoareImplicita());
+	}
+
+	friend ostream& operator<<(ostream&, Create_Command);
+};
+
+ostream& operator<<(ostream& o, Create_Command cc)
+{
+	cout << "Nume tabela: ";
+	o << cc.t->getNumeTabela() << endl;
+	cout << "Nr coloane: ";
+	o << cc.t->getColumns()->getNrColoane() << endl;
+	cout << "Coloane: " << endl;
+	for (int i = 0; i < cc.t->getNrColoane(); i++)
+	{
+		o << "Denumire coloana: " << cc.t->getColumns()[i].getDenumire() << " | " <<
+			"Dimensiune: " << cc.t->getColumns()[i].getDimensiune() << " | " <<
+			"Tip: " << cc.t->getColumns()[i].getTip() << " | " <<
+			"Valoare default: " << cc.t->getColumns()[i].getValoareImplicita() << endl;
+	}
+	return o;
+}
 
 class Select_Command {};
 class Insert_Command {};
